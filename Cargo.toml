@@ -3,7 +3,11 @@ name = "aws-regional-product-services"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-
+description = "AWS Regional Product Services CLI"
+repository = "https://github.com/masinc/aws-regional-product-services"
+readme = "README.md"
+keywords = ["aws", "cli"]
+categories = ["command-line-interface"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
