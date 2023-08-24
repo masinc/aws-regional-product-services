@@ -1,0 +1,21 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  generate-schema-to-rust:
+    cmds:
+      - >
+        pnpm exec quicktype
+        --top-level AwsRegionalProductServices
+        --src-lang schema
+        --lang rust
+        --visibility public
+        --derive-clone
+        --derive-debug
+        --derive-partial-eq
+        --out src/aws_regional_product_services/schema.rs
+        schema/aws-regional-product-services.json

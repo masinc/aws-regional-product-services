@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/AwsRegionalProductServices",
+  "definitions": {
+    "AwsRegionalProductServices": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/Metadata"
+        },
+        "prices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Price"
+          }
+        }
+      },
+      "required": [
+        "metadata",
+        "prices"
+      ],
+      "title": "AwsRegionalProductServices"
+    },
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "copyright": {
+          "type": "string"
+        },
+        "disclaimer": {
+          "type": "string"
+        },
+        "format:version": {
+          "type": "string"
+        },
+        "source:version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "copyright",
+        "disclaimer",
+        "format:version",
+        "source:version"
+      ],
+      "title": "Metadata"
+    },
+    "Price": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "attributes": {
+          "$ref": "#/definitions/Attributes"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "attributes",
+        "id"
+      ],
+      "title": "Price"
+    },
+    "Attributes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "aws:region": {
+          "$ref": "#/definitions/AwsRegionString"
+        },
+        "aws:serviceName": {
+          "type": "string"
+        },
+        "aws:serviceUrl": {
+          "type": "string",
+          "format": "uri",
+          "qt-uri-protocols": [
+            "https"
+          ],
+          "qt-uri-extensions": [
+            ".html"
+          ]
+        }
+      },
+      "required": [
+        "aws:region",
+        "aws:serviceName",
+        "aws:serviceUrl"
+      ],
+      "title": "Attributes"
+    },
+    "AwsRegionString": {
+      "type": "string",
+      "title": "AwsRegionString"
+    }
+  }
+}
