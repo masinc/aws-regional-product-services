@@ -10,7 +10,7 @@ pub struct Cli {
 #[derive(Parser, Debug)]
 pub enum SubCommand {
     #[clap(about = "Get the regions of the AWS")]
-    Region(Region),
+    Regions(Regions),
     #[clap(about = "Fetch the AWS Regional Product Services data")]
     Fetch(Fetch),
     #[clap(about = "List the services of the region")]
@@ -20,7 +20,7 @@ pub enum SubCommand {
 }
 
 #[derive(Parser, Debug)]
-pub struct Region {}
+pub struct Regions {}
 
 #[derive(Parser, Debug)]
 pub struct Fetch {}
