@@ -3,8 +3,7 @@ pub use fetch::fetch;
 pub use retriever::{RetrieveMode, Retriever};
 pub use schema::AwsRegionalProductServices;
 
-pub mod cache;
-pub mod fetch;
+mod cache;
+mod fetch;
 mod retriever;
-pub mod schema;
-pub mod service;
+mod schema;

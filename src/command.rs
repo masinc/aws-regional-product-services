@@ -4,11 +4,11 @@ use std::process::ExitCode;
 use similar::{ChangeTag, TextDiff};
 use termcolor::WriteColor;
 
-use crate::aws_regional_product_services::service::{
-    ExistsRegion, ExistsRegionParams, ListRegion, ListService, ListServiceParams, Service,
-};
 use crate::aws_regional_product_services::{RetrieveMode, Retriever};
 use crate::cli;
+use crate::service::{
+    ExistsRegion, ExistsRegionParams, ListRegion, ListService, ListServiceParams, Service,
+};
 
 #[async_trait::async_trait]
 pub trait Command {
