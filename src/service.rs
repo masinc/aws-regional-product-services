@@ -77,3 +77,50 @@ impl Service for ExistsRegion {
         regions.contains(&param.region)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    static DATA: &str = r#"{
+    "metadata": {
+      "copyright": "Copyright",
+      "disclaimer": "Disclaimer",
+      "format:version": "1.0",
+      "source:version": "20110101123400"
+    },
+    "prices": [
+      {
+        "attributes": {
+          "aws:region": "us-east-1",
+          "aws:serviceName": "Amazon Elastic Compute Cloud (EC2)",
+          "aws:serviceUrl": "https://aws.amazon.com/ec2/"
+        },
+        "id": "ec2:us-east-1"
+      }
+    ]
+    }"#;
+
+    #[test]
+    fn test_list_region() {
+        let data = serde_json::from_str::<AwsRegionalProductServices>(DATA).unwrap();
+        let regions = ListRegion.run(&data, &());
+        assert_eq!(regions.len(), 1);
+        assert_eq!(regions[0], "us-east-1");
+    }
+
+    #[test]
+    fn test_list_service() {
+        let data = serde_json::from_str::<AwsRegionalProductServices>(DATA).unwrap();
+        let services = ListService.run(&data, &ListServiceParams::new("us-east-1".to_string()));
+        assert_eq!(services.len(), 1);
+        assert_eq!(services[0], "Amazon Elastic Compute Cloud (EC2)");
+    }
+
+    #[test]
+    fn test_exists_region() {
+        let data = serde_json::from_str::<AwsRegionalProductServices>(DATA).unwrap();
+        assert!(ExistsRegion.run(&data, &ExistsRegionParams::new("us-east-1".to_string())));
+        assert!(!ExistsRegion.run(&data, &ExistsRegionParams::new("us-east-2".to_string())));
+    }
+}
