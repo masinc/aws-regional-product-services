@@ -64,20 +64,41 @@ impl Command for cli::Service {
 
             let services = ListService.run(&data, &ListServiceParams::new(region.clone()));
 
-            for service in services {
-                println!("{}", service);
-            }
+            let output = match self.output {
+                Some(cli::OutputFormat::Text) | None => {
+                    let mut output = String::new();
+                    for service in services {
+                        output.push_str(&format!("{}\n", service));
+                    }
+                    output
+                }
+                Some(cli::OutputFormat::Yaml) => serde_yaml::to_string(&services)?,
+
+                Some(cli::OutputFormat::Json) => serde_json::to_string_pretty(&services)?,
+            };
+
+            println!("{}", output)
         } else {
             // List services of all regions
             let services = ListAllService.run(&data, &());
 
-            for (region, services) in services {
-                println!("{}", region);
-                for service in services {
-                    println!("  {}", service);
+            let output = match self.output {
+                Some(cli::OutputFormat::Text) | None => {
+                    let mut output = String::new();
+                    for (region, services) in services {
+                        output.push_str(&format!("{}\n", region));
+                        for service in services {
+                            output.push_str(&format!("  {}\n", service));
+                        }
+                    }
+                    output
                 }
-                println!();
-            }
+                Some(cli::OutputFormat::Yaml) => serde_yaml::to_string(&services)?,
+
+                Some(cli::OutputFormat::Json) => serde_json::to_string_pretty(&services)?,
+            };
+
+            println!("{}", output)
         }
 
         Ok(ExitCode::SUCCESS)
