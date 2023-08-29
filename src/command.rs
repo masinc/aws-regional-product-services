@@ -21,7 +21,7 @@ impl Command for cli::SubCommand {
         match self {
             cli::SubCommand::Regions(cmd) => cmd.execute(retriever).await,
             cli::SubCommand::Fetch(cmd) => cmd.execute(retriever).await,
-            cli::SubCommand::List(cmd) => cmd.execute(retriever).await,
+            cli::SubCommand::Service(cmd) => cmd.execute(retriever).await,
             cli::SubCommand::Diff(cmd) => cmd.execute(retriever).await,
         }
     }
@@ -50,7 +50,7 @@ impl Command for cli::Fetch {
 }
 
 #[async_trait::async_trait]
-impl Command for cli::List {
+impl Command for cli::Service {
     async fn execute(&self, retriever: &Retriever) -> anyhow::Result<ExitCode> {
         let data = retriever.retrieve().await?;
 
