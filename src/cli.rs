@@ -28,7 +28,7 @@ pub struct Fetch {}
 #[derive(Parser, Debug)]
 pub struct Service {
     /// The region of the AWS. If not specified, all regions are listed.
-    pub region: String,
+    pub region: Option<String>,
 }
 
 #[derive(Parser, Debug)]

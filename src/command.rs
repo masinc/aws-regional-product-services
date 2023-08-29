@@ -7,7 +7,8 @@ use termcolor::WriteColor;
 use crate::aws_regional_product_services::{RetrieveMode, Retriever};
 use crate::cli;
 use crate::service::{
-    ExistsRegion, ExistsRegionParams, ListRegion, ListService, ListServiceParams, Service,
+    ExistsRegion, ExistsRegionParams, ListAllService, ListRegion, ListService, ListServiceParams,
+    Service,
 };
 
 #[async_trait::async_trait]
@@ -54,15 +55,29 @@ impl Command for cli::Service {
     async fn execute(&self, retriever: &Retriever) -> anyhow::Result<ExitCode> {
         let data = retriever.retrieve().await?;
 
-        if !ExistsRegion.run(&data, &ExistsRegionParams::new(self.region.clone())) {
-            eprintln!("Region {} not found", self.region);
-            return Ok(ExitCode::FAILURE);
-        }
+        if let Some(region) = &self.region {
+            // List services of the region
+            if !ExistsRegion.run(&data, &ExistsRegionParams::new(region.clone())) {
+                eprintln!("Region {} not found", region);
+                return Ok(ExitCode::FAILURE);
+            }
 
-        let services = ListService.run(&data, &ListServiceParams::new(self.region.clone()));
+            let services = ListService.run(&data, &ListServiceParams::new(region.clone()));
 
-        for service in services {
-            println!("{}", service);
+            for service in services {
+                println!("{}", service);
+            }
+        } else {
+            // List services of all regions
+            let services = ListAllService.run(&data, &());
+
+            for (region, services) in services {
+                println!("{}", region);
+                for service in services {
+                    println!("  {}", service);
+                }
+                println!();
+            }
         }
 
         Ok(ExitCode::SUCCESS)
