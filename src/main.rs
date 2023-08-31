@@ -10,6 +10,7 @@ mod command;
 mod config;
 
 mod service;
+mod output;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<ExitCode> {

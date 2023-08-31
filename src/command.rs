@@ -6,6 +6,7 @@ use termcolor::WriteColor;
 
 use crate::aws_regional_product_services::{RetrieveMode, Retriever};
 use crate::cli;
+use crate::output::{ListAllServiceOutput, ListServiceOutput, Output};
 use crate::service::{
     ExistsRegion, ExistsRegionParams, ListAllService, ListRegion, ListService, ListServiceParams,
     Service,
@@ -64,41 +65,20 @@ impl Command for cli::Service {
 
             let services = ListService.run(&data, &ListServiceParams::new(region.clone()));
 
-            let output = match self.output {
-                Some(cli::OutputFormat::Text) | None => {
-                    let mut output = String::new();
-                    for service in services {
-                        output.push_str(&format!("{}\n", service));
-                    }
-                    output
-                }
-                Some(cli::OutputFormat::Yaml) => serde_yaml::to_string(&services)?,
-
-                Some(cli::OutputFormat::Json) => serde_json::to_string_pretty(&services)?,
-            };
-
-            println!("{}", output)
+            ListServiceOutput.write(
+                &services,
+                &mut std::io::stdout(),
+                self.output.unwrap_or_default(),
+            )?;
         } else {
             // List services of all regions
             let services = ListAllService.run(&data, &());
 
-            let output = match self.output {
-                Some(cli::OutputFormat::Text) | None => {
-                    let mut output = String::new();
-                    for (region, services) in services {
-                        output.push_str(&format!("{}\n", region));
-                        for service in services {
-                            output.push_str(&format!("  {}\n", service));
-                        }
-                    }
-                    output
-                }
-                Some(cli::OutputFormat::Yaml) => serde_yaml::to_string(&services)?,
-
-                Some(cli::OutputFormat::Json) => serde_json::to_string_pretty(&services)?,
-            };
-
-            println!("{}", output)
+            ListAllServiceOutput.write(
+                &services,
+                &mut std::io::stdout(),
+                self.output.unwrap_or_default(),
+            )?;
         }
 
         Ok(ExitCode::SUCCESS)
