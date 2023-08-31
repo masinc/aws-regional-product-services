@@ -33,7 +33,11 @@ pub enum SubCommand {
 }
 
 #[derive(Parser, Debug)]
-pub struct Region {}
+pub struct Region {
+    /// The output format (default: text)
+    #[clap(long)]
+    pub output: Option<OutputFormat>,
+}
 
 #[derive(Parser, Debug)]
 pub struct Fetch {}

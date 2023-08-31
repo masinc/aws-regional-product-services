@@ -14,6 +14,34 @@ pub trait Output {
 }
 
 #[derive(Debug)]
+pub struct ListRegionOutput;
+
+impl Output for ListRegionOutput {
+    type Param = service::ListRegionResult;
+    fn write<W: Write>(
+        &self,
+        param: &Self::Param,
+        writer: &mut W,
+        format: OutputFormat,
+    ) -> anyhow::Result<()> {
+        match format {
+            OutputFormat::Text => {
+                for region in param {
+                    writeln!(writer, "{}", region)?;
+                }
+            }
+            OutputFormat::Yaml => {
+                serde_yaml::to_writer(writer, param)?;
+            }
+            OutputFormat::Json => {
+                serde_json::to_writer_pretty(writer, param)?;
+            }
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
 pub struct ListServiceOutput;
 
 impl Output for ListServiceOutput {

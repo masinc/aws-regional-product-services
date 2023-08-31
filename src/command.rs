@@ -6,7 +6,7 @@ use termcolor::WriteColor;
 
 use crate::aws_regional_product_services::{RetrieveMode, Retriever};
 use crate::cli;
-use crate::output::{ListAllServiceOutput, ListServiceOutput, Output};
+use crate::output::{ListAllServiceOutput, ListRegionOutput, ListServiceOutput, Output};
 use crate::service::{
     ExistsRegion, ExistsRegionParams, ListAllService, ListRegion, ListService, ListServiceParams,
     Service,
@@ -35,9 +35,11 @@ impl Command for cli::Region {
         let data = retriever.retrieve().await?;
         let regions = ListRegion.run(&data, &());
 
-        for region in regions {
-            println!("{}", region);
-        }
+        ListRegionOutput.write(
+            &regions,
+            &mut std::io::stdout(),
+            self.output.unwrap_or_default(),
+        )?;
 
         Ok(ExitCode::SUCCESS)
     }
