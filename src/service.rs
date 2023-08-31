@@ -11,9 +11,12 @@ pub trait Service {
 #[derive(Debug)]
 pub struct ListRegion;
 
+pub type ListRegionParams = ();
+pub type ListRegionResult = Vec<String>;
+
 impl Service for ListRegion {
-    type Param = ();
-    type Result = Vec<String>;
+    type Param = ListRegionParams;
+    type Result = ListRegionResult;
     fn run(&self, data: &AwsRegionalProductServices, _param: &Self::Param) -> Self::Result {
         let regions = data
             .prices
@@ -40,9 +43,11 @@ impl ListServiceParams {
     }
 }
 
+pub type ListServiceResult = Vec<String>;
+
 impl Service for ListService {
     type Param = ListServiceParams;
-    type Result = Vec<String>;
+    type Result = ListServiceResult;
 
     fn run(&self, data: &AwsRegionalProductServices, param: &Self::Param) -> Self::Result {
         let mut services = data
@@ -59,9 +64,11 @@ impl Service for ListService {
 #[derive(Debug)]
 pub struct ListAllService;
 
+pub type ListAllServiceResult = HashMap<String, Vec<String>>;
+
 impl Service for ListAllService {
     type Param = ();
-    type Result = HashMap<String, Vec<String>>;
+    type Result = ListAllServiceResult;
 
     fn run(&self, data: &AwsRegionalProductServices, _param: &Self::Param) -> Self::Result {
         let mut services = HashMap::new();
@@ -93,9 +100,11 @@ impl ExistsRegionParams {
     }
 }
 
+pub type ExistsRegionResult = bool;
+
 impl Service for ExistsRegion {
     type Param = ExistsRegionParams;
-    type Result = bool;
+    type Result = ExistsRegionResult;
 
     fn run(&self, data: &AwsRegionalProductServices, param: &Self::Param) -> Self::Result {
         let regions = ListRegion.run(data, &());
