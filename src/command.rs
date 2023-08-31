@@ -20,7 +20,7 @@ pub trait Command {
 impl Command for cli::SubCommand {
     async fn execute(&self, retriever: &Retriever) -> anyhow::Result<ExitCode> {
         match self {
-            cli::SubCommand::Regions(cmd) => cmd.execute(retriever).await,
+            cli::SubCommand::Region(cmd) => cmd.execute(retriever).await,
             cli::SubCommand::Fetch(cmd) => cmd.execute(retriever).await,
             cli::SubCommand::Service(cmd) => cmd.execute(retriever).await,
             cli::SubCommand::Diff(cmd) => cmd.execute(retriever).await,
@@ -29,7 +29,7 @@ impl Command for cli::SubCommand {
 }
 
 #[async_trait::async_trait]
-impl Command for cli::Regions {
+impl Command for cli::Region {
     async fn execute(&self, retriever: &Retriever) -> anyhow::Result<ExitCode> {
         let data = retriever.retrieve().await?;
         let regions = ListRegion.run(&data, &());
