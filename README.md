@@ -416,6 +416,26 @@ And See the CLI help for more details:
 aws-regional-product-services --help
 ```
 
+## Configuration
+
+List the current configuration:
+
+```bash
+aws-regional-product-services config list
+```
+
+Get the current configuration for a specific key:
+
+```bash
+aws-regional-product-services config get <key>
+```
+
+Set the configuration for a specific key:
+
+```bash
+aws-regional-product-services config set <key> <value>
+```
+
 # License
 
 The project is licensed under the Apache License Version 2.0 or MIT License. See the LICENSE file for more details.
