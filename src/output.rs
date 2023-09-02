@@ -99,3 +99,30 @@ impl Output for ListAllServiceOutput {
         Ok(())
     }
 }
+
+#[derive(Debug)]
+pub struct ConfigListOutput;
+
+impl Output for ConfigListOutput {
+    type Param = crate::config::Config;
+
+    fn write<W: Write>(
+        &self,
+        param: &Self::Param,
+        writer: &mut W,
+        format: OutputFormat,
+    ) -> anyhow::Result<()> {
+        match format {
+            OutputFormat::Text => {
+                writeln!(writer, "fetch_mode: {}", param.fetch_mode)?;
+            }
+            OutputFormat::Yaml => {
+                serde_yaml::to_writer(writer, param)?;
+            }
+            OutputFormat::Json => {
+                serde_json::to_writer_pretty(writer, param)?;
+            }
+        }
+        Ok(())
+    }
+}

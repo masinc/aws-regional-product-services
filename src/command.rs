@@ -1,7 +1,9 @@
 use std::io::prelude::*;
 use std::process::ExitCode;
+use std::str::FromStr;
 
 use similar::{ChangeTag, TextDiff};
+use strum::VariantNames;
 use termcolor::WriteColor;
 
 use crate::aws_regional_product_services::{RetrieveMode, Retriever};
@@ -25,6 +27,7 @@ impl Command for cli::SubCommand {
             cli::SubCommand::Fetch(cmd) => cmd.execute(retriever).await,
             cli::SubCommand::Service(cmd) => cmd.execute(retriever).await,
             cli::SubCommand::Diff(cmd) => cmd.execute(retriever).await,
+            cli::SubCommand::Config(cmd) => cmd.execute(retriever).await,
         }
     }
 }
@@ -142,6 +145,78 @@ impl Command for cli::Diff {
                 }
             }
         }
+
+        Ok(ExitCode::SUCCESS)
+    }
+}
+
+#[async_trait::async_trait]
+impl Command for cli::Config {
+    async fn execute(&self, _retriever: &Retriever) -> anyhow::Result<ExitCode> {
+        match &self.subcommand {
+            cli::ConfigSubCommand::List(cmd) => cmd.execute(),
+            cli::ConfigSubCommand::Get(cmd) => cmd.execute(),
+            cli::ConfigSubCommand::Set(cmd) => cmd.execute(),
+        }
+    }
+}
+
+pub trait ConfigCommand {
+    fn execute(&self) -> anyhow::Result<ExitCode>;
+}
+
+impl ConfigCommand for cli::ConfigList {
+    fn execute(&self) -> anyhow::Result<ExitCode> {
+        let config = crate::config::Config::load_default_path()?;
+
+        crate::output::ConfigListOutput.write(
+            &config,
+            &mut std::io::stdout(),
+            self.output.unwrap_or_default(),
+        )?;
+
+        Ok(ExitCode::SUCCESS)
+    }
+}
+
+impl ConfigCommand for cli::ConfigGet {
+    fn execute(&self) -> anyhow::Result<ExitCode> {
+        let config = crate::config::Config::load_default_path()?;
+
+        match self.key {
+            cli::ConfigKey::FetchMode => {
+                let value = config.fetch_mode;
+                println!("{}", value);
+            }
+        }
+
+        Ok(ExitCode::SUCCESS)
+    }
+}
+
+#[derive(thiserror::Error, Debug)]
+pub enum ConfigSetError {
+    #[error("Invalid value: {0}. Possible Values: {1}")]
+    InvalidValue(String, String),
+}
+
+impl ConfigCommand for cli::ConfigSet {
+    fn execute(&self) -> anyhow::Result<ExitCode> {
+        let mut config = crate::config::Config::create_or_load_default_path()?;
+
+        match self.key {
+            cli::ConfigKey::FetchMode => {
+                let value = crate::config::FetchMode::from_str(&self.value).map_err(|_| {
+                    ConfigSetError::InvalidValue(
+                        self.value.clone(),
+                        crate::config::FetchMode::VARIANTS.join(", "),
+                    )
+                })?;
+                config.fetch_mode = value;
+            }
+        }
+
+        config.save(&crate::config::get_config_path())?;
 
         Ok(ExitCode::SUCCESS)
     }

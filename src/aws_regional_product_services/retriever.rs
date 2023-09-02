@@ -1,6 +1,7 @@
 use crate::aws_regional_product_services;
 use crate::aws_regional_product_services::{AwsRegionalProductServices, Cache};
-use crate::config::get_data_json_path;
+use crate::config::Config;
+use crate::config::{get_data_json_path, FetchMode};
 
 #[derive(Debug)]
 pub struct Retriever {
@@ -46,12 +47,21 @@ impl Retriever {
     }
 
     async fn retrieve_fetch_or_cache(&self) -> anyhow::Result<AwsRegionalProductServices> {
-        if let Some(data) = self.cache.get() {
-            Ok(data.clone())
-        } else {
-            let data = crate::aws_regional_product_services::fetch::fetch().await?;
-            self.save_data_json(&data)?;
-            Ok(data)
+        let config = Config::create_or_load_default_path()?;
+
+        match config.fetch_mode {
+            FetchMode::Default => {
+                if let Some(data) = self.cache.get() {
+                    Ok(data.clone())
+                } else {
+                    let data = self.retrieve_fetch().await?;
+                    Ok(data)
+                }
+            }
+            FetchMode::Always => {
+                let data = self.retrieve_fetch().await?;
+                Ok(data)
+            }
         }
     }
 }

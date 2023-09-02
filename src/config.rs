@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub fn get_config_dir() -> PathBuf {
     dirs::home_dir()
@@ -10,6 +10,67 @@ pub fn get_config_dir() -> PathBuf {
 pub fn get_data_json_path() -> PathBuf {
     let dir = get_config_dir();
     dir.join("data.json")
+}
+
+pub fn get_config_path() -> PathBuf {
+    let dir = get_config_dir();
+    dir.join("config.yaml")
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Default, serde::Serialize, serde::Deserialize)]
+pub struct Config {
+    pub fetch_mode: FetchMode,
+}
+
+impl Config {
+    pub fn load(path: &Path) -> anyhow::Result<Self> {
+        let config = std::fs::read_to_string(path)?;
+        let config = serde_yaml::from_str(&config)?;
+        Ok(config)
+    }
+
+    pub fn load_default_path() -> anyhow::Result<Self> {
+        Self::load(&get_config_path())
+    }
+
+    pub fn save(&self, path: &Path) -> anyhow::Result<()> {
+        let config = serde_yaml::to_string(self)?;
+        std::fs::write(path, config)?;
+        Ok(())
+    }
+
+    pub fn create_or_load_default_path() -> anyhow::Result<Self> {
+        let path = get_config_path();
+        if !path.exists() {
+            let config = Self::default();
+            config.save(&path)?;
+        }
+        Self::load(&path)
+    }
+}
+
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize,
+    strum::Display,
+    strum::EnumString,
+    strum::EnumVariantNames,
+)]
+#[strum(serialize_all = "kebab-case")]
+pub enum FetchMode {
+    Default,
+    Always,
+}
+
+impl Default for FetchMode {
+    fn default() -> Self {
+        Self::Default
+    }
 }
 
 #[cfg(test)]
@@ -42,5 +103,11 @@ mod tests {
                 .unwrap()
                 .is_match(config_dir)
         )
+    }
+
+    #[test]
+    fn test_fetch_mode_default() {
+        let fetch_mode = FetchMode::default();
+        assert_eq!(fetch_mode, FetchMode::Default);
     }
 }

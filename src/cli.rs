@@ -30,6 +30,8 @@ pub enum SubCommand {
     Service(Service),
     #[clap(about = "Diff the services of the regions")]
     Diff(Diff),
+    #[clap(about = "Config the aws-regional-product-services")]
+    Config(Config),
 }
 
 #[derive(Parser, Debug)]
@@ -66,6 +68,48 @@ pub struct Diff {
     /// if true, only show the diff (default: false)
     #[clap(long, default_value = "false")]
     pub diff_only: bool,
+}
+
+#[derive(Parser, Debug)]
+pub struct Config {
+    #[clap(subcommand)]
+    pub subcommand: ConfigSubCommand,
+}
+
+#[derive(Parser, Debug)]
+pub enum ConfigSubCommand {
+    #[clap(about = "List the config")]
+    List(ConfigList),
+    #[clap(about = "Get the config")]
+    Get(ConfigGet),
+    #[clap(about = "Set the config")]
+    Set(ConfigSet),
+}
+
+#[derive(Parser, Debug)]
+pub struct ConfigList {
+    /// The output format (default: text)
+    #[clap(long)]
+    pub output: Option<OutputFormat>,
+}
+
+#[derive(Parser, Debug)]
+pub struct ConfigGet {
+    /// The key of the config
+    pub key: ConfigKey,
+}
+
+#[derive(Parser, Debug)]
+pub struct ConfigSet {
+    /// The key of the config
+    pub key: ConfigKey,
+    /// The value of the config
+    pub value: String,
+}
+
+#[derive(ValueEnum, Debug, Clone, Copy, Hash, PartialEq, Eq, strum::Display)]
+pub enum ConfigKey {
+    FetchMode,
 }
 
 #[cfg(test)]
