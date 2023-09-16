@@ -1,5 +1,7 @@
 use std::path::{Path, PathBuf};
 
+use anyhow::Context;
+
 pub fn get_config_dir() -> PathBuf {
     dirs::home_dir()
         .unwrap()
@@ -24,8 +26,10 @@ pub struct Config {
 
 impl Config {
     pub fn load(path: &Path) -> anyhow::Result<Self> {
-        let config = std::fs::read_to_string(path)?;
-        let config = serde_yaml::from_str(&config)?;
+        let config = std::fs::read_to_string(path)
+            .with_context(|| format!("Failed to read config file: {}", path.display()))?;
+        let config = serde_yaml::from_str(&config)
+            .with_context(|| format!("Failed to parse config file: {}", path.display()))?;
         Ok(config)
     }
 

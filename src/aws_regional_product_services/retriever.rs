@@ -24,9 +24,9 @@ impl Retriever {
         }
 
         let data = serde_json::to_string_pretty(data)
-            .with_context(|| format!("Failed to serialize data for {}", p.to_str().unwrap()))?;
-        std::fs::write(p, data)
-            .with_context(|| format!("Failed to write data to {}", p.to_str().unwrap()))?;
+            .with_context(|| format!("Failed to serialize data for {}", p.display()))?;
+        std::fs::write(&p, data)
+            .with_context(|| format!("Failed to write data to {}", p.display()))?;
         Ok(())
     }
 
