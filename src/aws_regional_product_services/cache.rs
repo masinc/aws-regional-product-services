@@ -10,7 +10,7 @@ impl Cache {
     pub fn new() -> anyhow::Result<Self> {
         let p = get_data_json_path();
 
-        if let Ok(p) = std::fs::read_to_string(p) {
+        if let Ok(data) = std::fs::read_to_string(p) {
             let data = serde_json::from_str::<AwsRegionalProductServices>(&data)?;
 
             Ok(Self { data: Some(data) })
