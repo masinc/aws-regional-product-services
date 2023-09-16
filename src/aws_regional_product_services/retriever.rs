@@ -1,3 +1,5 @@
+use anyhow::Context;
+
 use crate::aws_regional_product_services;
 use crate::aws_regional_product_services::{AwsRegionalProductServices, Cache};
 use crate::config::Config;
@@ -11,7 +13,7 @@ pub struct Retriever {
 impl Retriever {
     pub fn new() -> anyhow::Result<Self> {
         Ok(Self {
-            cache: Cache::new().unwrap(),
+            cache: Cache::new()?,
         })
     }
 
@@ -21,8 +23,10 @@ impl Retriever {
             std::fs::create_dir_all(parent)?;
         }
 
-        let data = serde_json::to_string_pretty(data)?;
-        std::fs::write(p, data)?;
+        let data = serde_json::to_string_pretty(data)
+            .with_context(|| format!("Failed to serialize data for {}", p.to_str().unwrap()))?;
+        std::fs::write(p, data)
+            .with_context(|| format!("Failed to write data to {}", p.to_str().unwrap()))?;
         Ok(())
     }
 
