@@ -72,7 +72,7 @@ impl Config {
     serde::Deserialize,
     strum::Display,
     strum::EnumString,
-    strum::EnumVariantNames,
+    strum::VariantNames,
 )]
 #[strum(serialize_all = "kebab-case")]
 pub enum FetchMode {
