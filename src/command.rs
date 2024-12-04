@@ -6,7 +6,7 @@ use similar::{ChangeTag, TextDiff};
 use strum::VariantNames;
 use termcolor::WriteColor;
 
-use crate::aws_regional_product_services::{RetrieveMode, Retriever};
+use crate::aws_regional_product_services::{RetrieveSource, Retriever};
 use crate::cli;
 use crate::output::{ListAllServiceOutput, ListRegionOutput, ListServiceOutput, Output};
 use crate::service::{
@@ -51,7 +51,7 @@ impl Command for cli::Region {
 #[async_trait::async_trait]
 impl Command for cli::Fetch {
     async fn execute(&self, retriever: &Retriever) -> anyhow::Result<ExitCode> {
-        retriever.retrieve_with(RetrieveMode::Fetch).await?;
+        retriever.retrieve_with(RetrieveSource::Fetch).await?;
         Ok(ExitCode::SUCCESS)
     }
 }
@@ -167,7 +167,7 @@ pub trait ConfigCommand {
 
 impl ConfigCommand for cli::ConfigList {
     fn execute(&self) -> anyhow::Result<ExitCode> {
-        let config = crate::config::Config::load_default_path()?;
+        let config = crate::config::Config::load_default()?;
 
         crate::output::ConfigListOutput.write(
             &config,
@@ -181,7 +181,7 @@ impl ConfigCommand for cli::ConfigList {
 
 impl ConfigCommand for cli::ConfigGet {
     fn execute(&self) -> anyhow::Result<ExitCode> {
-        let config = crate::config::Config::load_default_path()?;
+        let config = crate::config::Config::load_default()?;
 
         match self.key {
             cli::ConfigKey::FetchMode => {
@@ -202,7 +202,7 @@ pub enum ConfigSetError {
 
 impl ConfigCommand for cli::ConfigSet {
     fn execute(&self) -> anyhow::Result<ExitCode> {
-        let mut config = crate::config::Config::create_or_load_default_path()?;
+        let mut config = crate::config::Config::create_or_load_default()?;
 
         match self.key {
             cli::ConfigKey::FetchMode => {

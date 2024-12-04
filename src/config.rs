@@ -2,6 +2,15 @@ use std::path::{Path, PathBuf};
 
 use anyhow::Context;
 
+pub fn init() -> anyhow::Result<()> {
+    let dir = get_config_dir();
+    if !dir.exists() {
+        std::fs::create_dir_all(&dir)
+            .with_context(|| format!("Failed to create config directory: {}", dir.display()))?;
+    }
+    Ok(())
+}
+
 pub fn get_config_dir() -> PathBuf {
     dirs::home_dir()
         .unwrap()
@@ -33,7 +42,7 @@ impl Config {
         Ok(config)
     }
 
-    pub fn load_default_path() -> anyhow::Result<Self> {
+    pub fn load_default() -> anyhow::Result<Self> {
         Self::load(&get_config_path())
     }
 
@@ -43,7 +52,7 @@ impl Config {
         Ok(())
     }
 
-    pub fn create_or_load_default_path() -> anyhow::Result<Self> {
+    pub fn create_or_load_default() -> anyhow::Result<Self> {
         let path = get_config_path();
         if !path.exists() {
             let config = Self::default();

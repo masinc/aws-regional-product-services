@@ -19,9 +19,6 @@ impl Retriever {
 
     fn save_data_json(&self, data: &AwsRegionalProductServices) -> anyhow::Result<()> {
         let p = get_data_json_path();
-        if let Some(parent) = p.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
 
         let data = serde_json::to_string_pretty(data)
             .with_context(|| format!("Failed to serialize data for {}", p.display()))?;
@@ -31,16 +28,16 @@ impl Retriever {
     }
 
     pub async fn retrieve(&self) -> anyhow::Result<AwsRegionalProductServices> {
-        self.retrieve_with(RetrieveMode::FetchOrCache).await
+        self.retrieve_with(RetrieveSource::Auto).await
     }
 
     pub async fn retrieve_with(
         &self,
-        mode: RetrieveMode,
+        mode: RetrieveSource,
     ) -> anyhow::Result<AwsRegionalProductServices> {
         match mode {
-            RetrieveMode::FetchOrCache => self.retrieve_fetch_or_cache().await,
-            RetrieveMode::Fetch => self.retrieve_fetch().await,
+            RetrieveSource::Auto => self.retrieve_fetch_or_cache().await,
+            RetrieveSource::Fetch => self.retrieve_fetch().await,
         }
     }
 
@@ -50,28 +47,41 @@ impl Retriever {
         Ok(data)
     }
 
-    async fn retrieve_fetch_or_cache(&self) -> anyhow::Result<AwsRegionalProductServices> {
-        let config = Config::create_or_load_default_path()?;
+    async fn retrive_cache(&self) -> anyhow::Result<AwsRegionalProductServices> {
+        if let Some(data) = self.cache.get() {
+            Ok(data.clone())
+        } else {
+            anyhow::bail!("No cache found");
+        }
+    }
 
-        match config.fetch_mode {
-            FetchMode::Default => {
-                if let Some(data) = self.cache.get() {
-                    Ok(data.clone())
-                } else {
-                    let data = self.retrieve_fetch().await?;
-                    Ok(data)
-                }
-            }
-            FetchMode::Always => {
-                let data = self.retrieve_fetch().await?;
-                Ok(data)
-            }
+    async fn retrieve_fetch_or_cache(&self) -> anyhow::Result<AwsRegionalProductServices> {
+        let config = Config::create_or_load_default()?;
+
+        if config.fetch_mode == FetchMode::Always {
+            return self.retrieve_fetch().await;
+        }
+
+        if let Ok(data) = self.retrive_cache().await {
+            Ok(data)
+        } else {
+            self.retrieve_fetch().await
         }
     }
 }
 
+/// Source to retrieve data.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum RetrieveMode {
-    FetchOrCache,
+pub enum RetrieveSource {
+    /// Automatically choose the source to retrieve data.
+    /// If cache is available, use it. Otherwise, fetch data.
+    Auto,
+    /// Always fetch data.
     Fetch,
+}
+
+impl Default for RetrieveSource {
+    fn default() -> Self {
+        Self::Auto
+    }
 }

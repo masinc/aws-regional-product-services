@@ -1,6 +1,6 @@
 pub use cache::Cache;
 pub use fetch::fetch;
-pub use retriever::{RetrieveMode, Retriever};
+pub use retriever::{RetrieveSource, Retriever};
 pub use schema::AwsRegionalProductServices;
 
 mod cache;
