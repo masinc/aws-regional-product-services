@@ -19,3 +19,9 @@ tasks:
         --derive-partial-eq
         --out src/aws_regional_product_services/schema.rs
         schema/aws-regional-product-services.json
+  release.patch:
+    cmds:
+      - cargo release patch
+  release.patch.exec:
+    cmds:
+      - cargo release patch --execute
