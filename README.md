@@ -2,18 +2,20 @@
 
 # Overview
 
-This project provides a command-line interface to interact with AWS Regional Product Services. The project is written in
-Rust.
+Provides a CLI to interact with AWS Regional Product Services. Lists AWS
+services in a region, lists all AWS regions, and compares services between
+regions
 
 # Features
 
-* List all AWS services in a region
-* List all AWS regions
-* Diff AWS services between regions
+- List all AWS services in a region
+- List all AWS regions
+- Diff AWS services between regions
 
 # Usage
 
-The project offers a command-line interface for interacting with AWS Regional Product Services.
+The project offers a command-line interface for interacting with AWS Regional
+Product Services.
 
 ## List all AWS services in a region
 
@@ -438,4 +440,5 @@ aws-regional-product-services config set <key> <value>
 
 # License
 
-The project is licensed under the Apache License Version 2.0 or MIT License. See the LICENSE file for more details.
+The project is licensed under the Apache License Version 2.0 or MIT License. See
+the LICENSE file for more details.
