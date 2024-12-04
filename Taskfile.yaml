@@ -25,3 +25,9 @@ tasks:
   release.patch.exec:
     cmds:
       - cargo release patch --execute
+  release.minor:
+    cmds:
+      - cargo release minor
+  release.minor.exec:
+    cmds:
+      - cargo release minor --execute
